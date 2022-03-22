@@ -23,5 +23,4 @@ websocket-client==1.2.3
 websockets==10.2
 Werkzeug==2.0.3
 xrpl-py==1.4.0
-xrplpers==0.0.3
 xumm-sdk-py==1.0.1

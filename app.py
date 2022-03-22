@@ -1,10 +1,6 @@
-from audioop import add
-from copyreg import constructor
 import json
-from os import environ
 from pathlib import Path
 import requests
-
 
 # Flask dependencies
 from flask import (
@@ -24,18 +20,13 @@ from xrpl.models.requests import AccountNFTs
 from xrpl.models.transactions import Memo, NFTokenMint
 from xrpl.utils import drops_to_xrp, hex_to_str, str_to_hex
 
-from xrplpers.xumm.transactions import submit_xumm_transaction
-
-def create_app():
-    app = Flask(__name__)
-    return app
-
-app = create_app()
-creds = json.loads(Path("creds.json").read_text())
+app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
 def hello_world():
-	return render_template("index.html")
+	return render_template("hello.html")
+
+creds = json.loads(Path("creds.json").read_text())
 
 @app.route("/account")
 def account_info():
@@ -43,8 +34,6 @@ def account_info():
     address = creds["address"]
     try:
         result = get_account_info(address, client).result
-        print("\n account info:")
-        print(json.dumps(result, indent=2))
     except:
         flash("Could not find the account - not a xls20 NFT-Devnet account?")
         return redirect(url_for("index"))
@@ -87,7 +76,7 @@ def mint():
         return jsonify({"ok": True})
     else:
         # Call the XUM API to have the signing handled there
-        memoes = [Memo.from_dict({"memo_data": str_to_hex("Minted by XRPL")})]
+        memoes = [Memo.from_dict({"memo_data": str_to_hex("Minted by PWC 2022. ")})]
         if "memo" in request.form and request.form["memo"]:
             memoes.append(
                 Memo.from_dict({"memo_data": str_to_hex(request.form["memo"])})
