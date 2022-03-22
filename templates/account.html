@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+    <label>Account <a href="https://nft-devnet.xrpl.org/accounts/{{info['address']}}">{{info['address']}}</a> owns {{info['nft_count']}} and has minted {{info['minted']}} nfts. It currently has a balance of {{info['balance_xrp']}}XRP</label>
+
+    <button  class="btn"><a href="{{ url_for('mint') }}">Create an NFT</a></button>
+
+    {% for n in nfts %}
+    <div class="nft_listing">
+        <p>Token {{n["id"]}} was issued by <a href="https://nft-devnet.xrpl.org/accounts/{{n['issuer']}}">{{n["issuer"]}}</a> and points to <a href="{{n['uri']}}">{{n["uri"]}}</a>. It has a serial of {{n['serial']}}.</p>
+        <p>The creator gets {{ n["fee"] / 100}}% of any future sales.</p>
+    </div>
+    {% endfor %}
+
+</body>
+</html>
+

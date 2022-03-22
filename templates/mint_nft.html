@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Mint NFT</title>
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+      crossorigin="anonymous" />
+</head>
+
+<body>
+   {% block content %}
+   {% if qr %} 
+   <div style="display: flex;
+   justify-content: center;
+   flex-direction: column;
+   align-items: center;
+   margin: 2rem;">
+
+   <a href="{{url}}"><img src="{{qr}}"/></a>
+   <script>
+       webSocket = new WebSocket("{{ws}}");
+       webSocket.onmessage = function (event) {
+           data = JSON.parse(event.data);
+           console.log(data);
+           if (data.opened){
+               console.log('The signing request has been opened');
+               // TODO: hide the QR code & show a kindly message
+           }
+           if (data.payload_uuidv4 || false){
+               console.log('Send signing event')
+               fetch("{{ url_for('mint') }}", {
+                   method: 'POST',
+                   headers: {'Content-Type': 'application/json'},
+                   body: JSON.stringify(event.data)
+               })
+               .then(response => {
+                   webSocket.close();
+                   console.log(response.json())
+                   location.href = "/account"
+               })
+           }
+       }
+   </script>
+   </div>
+
+   {% else %}
+   <div style="display: flex;
+   justify-content: center;
+   flex-direction: column;
+   align-items: center;
+   margin: 2rem;">
+      <h1 class="title">Create an NFT on XRPL</h1>
+      <h2 class="subtitle">Add details for your NFT</h2>
+      <form action="{{ url_for('mint') }}" method="post" style="display: flex; flex-direction: column;">
+        <label for="fname">URI of NFT:<input type="text" name="uri" value="https://ipfs.io/ipfs/Qme4KWQ1zr48qkrD7Rgxd5sjXDWKaH9PZegFPcFYQXwriJ?filename=Screen_Shot_2022-03-15_at_12.04.58_PM_7CXEnVV.png"></input></label>
+        <label for="fname">Secondary sale fee (%):<input type="text" name="fee" value="5"></input></label>
+        <label for="fname">Memo:<input type="text" name="memo" value="XRP logo"></input></label>
+        <input type="submit">
+      </form>
+   </div>
+
+   {% endif %}
+   {% endblock %}
+</body>
+</html>
