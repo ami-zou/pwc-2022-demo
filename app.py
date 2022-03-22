@@ -20,6 +20,9 @@ from xrpl.models.requests import AccountNFTs
 from xrpl.models.transactions import Memo, NFTokenMint
 from xrpl.utils import drops_to_xrp, hex_to_str, str_to_hex
 
+# XUMM SDK
+import xumm
+
 app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
@@ -96,21 +99,25 @@ def mint():
 
         mint = NFTokenMint.from_dict(mint_args)
         mint_result_json = mint.to_xrpl()
-        
         print(json.dumps(mint_result_json, indent=2))
         
-        r = submit_xumm_transaction(mint.to_xrpl())
-        xumm_data = r.json()
-        print(json.dumps(xumm_data, indent=2))
+        qr, url, ws = create_xumm_sdk_transaction(mint.to_xrpl())
+        return render_template("mint_nft.html", qr=qr, url=url, ws=ws)
 
-        return render_template(
-            "mint_nft.html",
-            qr=xumm_data["refs"]["qr_png"],
-            url=xumm_data["next"]["always"],
-            ws=xumm_data["refs"]["websocket_status"],
-        )
+def create_xumm_sdk_transaction(transaction):
+    xumm_creds = json.loads(Path("xumm_creds.json").read_text())
+    sdk = xumm.XummSdk(xumm_creds["x-api-key"], xumm_creds["x-api-secret"])
 
-def submit_xumm_transaction(transaction):
+    xumm_payload = {"txjson": transaction}
+    response = sdk.payload.create(xumm_payload)
+    
+    qr = response.refs.qr_png
+    url = response.next.always
+    ws = response.refs.websocket_status
+
+    return qr, url, ws
+
+def create_xumm_transaction(transaction):
     url = "https://xumm.app/api/v1/platform/payload"
     xumm_creds = json.loads(Path("xumm_creds.json").read_text())
     headers = {
@@ -120,11 +127,14 @@ def submit_xumm_transaction(transaction):
         "X-API-Secret":xumm_creds["x-api-secret"]
     }
 
-    xumm_payload = {}
-    xumm_payload["txjson"] = transaction
-
-    print(headers)
-    print(xumm_payload)
+    xumm_payload = {"txjson": transaction}
     response = requests.request("POST", url, headers=headers, json=xumm_payload)
     response.raise_for_status()
-    return response
+
+    xumm_data = response.json()
+    qr=xumm_data["refs"]["qr_png"]
+    url=xumm_data["next"]["always"]
+    ws=xumm_data["refs"]["websocket_status"]
+
+    return qr, url, ws
+
