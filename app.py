@@ -1,7 +1,3 @@
-import json
-from pathlib import Path
-import requests
-
 # Flask dependencies
 from flask import (
     Flask,
@@ -23,6 +19,11 @@ from xrpl.utils import drops_to_xrp, hex_to_str, str_to_hex
 # XUMM SDK
 import xumm
 
+# Other dependencies
+import json
+from pathlib import Path
+import requests
+
 app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
@@ -35,11 +36,13 @@ creds = json.loads(Path("creds.json").read_text())
 def account_info():
     client = JsonRpcClient("http://xls20-sandbox.rippletest.net:51234")
     address = creds["address"]
+
+    # Get account details (e.g. balance, address)
     try:
         result = get_account_info(address, client).result
     except:
         flash("Could not find the account - not a xls20 NFT-Devnet account?")
-        return redirect(url_for("index"))
+        return redirect(url_for("hello_world"))
 
     info = {
         "address": address,
@@ -48,16 +51,14 @@ def account_info():
         "balance_drops": result["account_data"].get("Balance", 0),
     }
 
+    # Get details on the NFTs
     result = client.request(AccountNFTs(account=address, limit=150)).result
-    print("\n account NFTs")
     print(json.dumps(result, indent=2))
 
     info["nft_count"] = len(result["account_nfts"])
     nfts = []
 
     for n in result["account_nfts"]:
-        # We could look up offers here, but it's slow - round trip to the ledge for each NFT
-        # offers = client.request(NFTSellOffers(tokenid=n["TokenID"])).result
         nfts.append(
             {
                 "issuer": n["Issuer"],
@@ -74,33 +75,31 @@ def account_info():
 def mint():
     if request.method == "GET":
         return render_template("mint_nft.html")
-    elif request.json:
+    elif request.json: # After a transaction is signed, front-end sends back a POST request
         print(request.json)
         return jsonify({"ok": True})
-    else:
-        # Call the XUM API to have the signing handled there
+    else: # POST request with details in the form to mint a token
+        # Create the NFT minting transaction on XRPL
         memoes = [Memo.from_dict({"memo_data": str_to_hex("Minted by PWC 2022. ")})]
         if "memo" in request.form and request.form["memo"]:
             memoes.append(
                 Memo.from_dict({"memo_data": str_to_hex(request.form["memo"])})
             )
 
-        fee = int(request.form["fee"])
         mint_args = {
             "account": creds["address"],
             "flags": 8,
             "uri": str_to_hex(request.form["uri"]),
             "memos": memoes,
-            # "transfer_fee": TransferFee.from_percent(int(request.form["fee"])).value, ## Library might be wrong - off by 10x
-            "transfer_fee": fee*100,
+            "transfer_fee": int(request.form["fee"])*100, #TransferFee.from_percent(int(request.form["fee"])).value, ## Library might be wrong - off by 10x
             "token_taxon": 0,
         }
-        print(mint_args)
 
         mint = NFTokenMint.from_dict(mint_args)
         mint_result_json = mint.to_xrpl()
         print(json.dumps(mint_result_json, indent=2))
         
+        # Call the XUM API for signing the transaction
         qr, url, ws = create_xumm_sdk_transaction(mint.to_xrpl())
         return render_template("mint_nft.html", qr=qr, url=url, ws=ws)
 
