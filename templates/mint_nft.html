@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="background-color:black;">
 
 <head>
    <meta charset="utf-8">
@@ -7,12 +7,17 @@
    <title>Mint NFT</title>
    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" crossorigin="anonymous" />
+   <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 </head>
 
 <body>
    <div style="display: flex; justify-content: center; flex-direction: column; align-items: center; margin: 2rem;">
    {% if qr %} 
-      <a href="{{url}}"><img src="{{qr}}"/></a>
+      <div id="message" style="display:none; background-color: aquamarine; border: 1px solid cyan; border-radius: 10px;">The signing request was opened &#128153!</div>
+      <div id="qr_code">
+         <a href="{{url}}"><img src="{{qr}}"/></a>
+      </div>
+
       <script>
          webSocket = new WebSocket("{{ws}}");
          webSocket.onmessage = function (event) {
@@ -20,7 +25,13 @@
             console.log(data);
             if (data.opened){
                   console.log('The signing request has been opened');
-                  // TODO: hide the QR code & show a kindly message
+                  
+                  // Hide the QR code & show a kindly message
+                  $('#qr_code').fadeOut(); 
+
+                  $('#message').fadeIn('slow', function(){
+                     $('#message').delay(5000).fadeOut(); 
+                  });
             }
             if (data.payload_uuidv4 || false){
                   console.log('Send signing event')
@@ -38,15 +49,19 @@
          }
       </script>
    {% else %}
-      <h1 class="title">Create an NFT on XRPL</h1>
-      <h2 class="subtitle">Add details for your NFT</h2>
-      <form action="{{ url_for('mint') }}" method="post" style="display: flex; flex-direction: column;">
-        <label for="fname">URI of NFT:<input type="text" name="uri" value="https://ipfs.io/ipfs/Qme4KWQ1zr48qkrD7Rgxd5sjXDWKaH9PZegFPcFYQXwriJ?filename=Screen_Shot_2022-03-15_at_12.04.58_PM_7CXEnVV.png"></input></label>
+      <h1 class="title" style="color: beige;">Mint an NFT on XRPL</h1>
+      <h2 class="subtitle" style="color: beige;">Add details for your NFT</h2>
+      <form action="{{ url_for('mint') }}" method="post" style="display: flex; flex-direction: column; color: beige;">
+        <label for="fname">URI of NFT:<input type="text" name="uri" value="https://ipfs.io/ipfs/QmPV1x4oxx977wPRBXWMXDsv8DF9RXauxVhEnjGrkWGhPQ?filename=xrp_YpSOg1E.png"></input></label>
         <label for="fname">Secondary sale fee (%):<input type="text" name="fee" value="5"></input></label>
         <label for="fname">Memo:<input type="text" name="memo" value="XRP logo"></input></label>
         <input type="submit">
       </form>
    {% endif %}
+   </div>
+
+   <div>
+      <img src="{{url_for('static', filename='xrp.png')}}">
    </div>
 </body>
 </html>
