@@ -13,10 +13,11 @@
 <body>
    <div style="display: flex; justify-content: center; flex-direction: column; align-items: center; margin: 2rem;">
    {% if qr %} 
-      <div id="message" style="display:none; background-color: aquamarine; border: 1px solid cyan; border-radius: 10px;">The signing request was opened &#128153!</div>
       <div id="qr_code">
          <a href="{{url}}"><img src="{{qr}}"/></a>
       </div>
+
+      <div id="message" style="display:none; background-color: aquamarine; border: 1px solid cyan; border-radius: 5px;">The signing request was opened &#128153!</div>
 
       <script>
          webSocket = new WebSocket("{{ws}}");
@@ -27,7 +28,7 @@
                   console.log('The signing request has been opened');
                   
                   // Hide the QR code & show a kindly message
-                  $('#qr_code').fadeOut(); 
+                  $('#qr_code').hide();
 
                   $('#message').fadeIn('slow', function(){
                      $('#message').delay(5000).fadeOut(); 

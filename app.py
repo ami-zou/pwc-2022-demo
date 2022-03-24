@@ -25,51 +25,17 @@ from pathlib import Path
 import requests
 
 app = Flask(__name__)
+creds = json.loads(Path("creds.json").read_text())
 
 @app.route("/", methods=["GET"])
 def hello_world():
 	return render_template("hello.html")
 
-creds = json.loads(Path("creds.json").read_text())
-
-@app.route("/account")
+@app.route("/account", methods=["GET"])
 def account_info():
-    client = JsonRpcClient("http://xls20-sandbox.rippletest.net:51234")
     address = creds["address"]
-
-    # Get account details (e.g. balance, address)
-    try:
-        result = get_account_info(address, client).result
-    except:
-        flash("Could not find the account - not a xls20 NFT-Devnet account?")
-        return redirect(url_for("hello_world"))
-
-    info = {
-        "address": address,
-        "minted": result["account_data"].get("MintedTokens", 0),
-        "balance_xrp": str(drops_to_xrp(result["account_data"].get("Balance", 0))),
-        "balance_drops": result["account_data"].get("Balance", 0),
-    }
-
-    # Get details on the NFTs
-    result = client.request(AccountNFTs(account=address, limit=150)).result
-    print(json.dumps(result, indent=2))
-
-    info["nft_count"] = len(result["account_nfts"])
-    nfts = []
-
-    for n in result["account_nfts"]:
-        nfts.append(
-            {
-                "issuer": n["Issuer"],
-                "id": n["TokenID"],
-                "fee": n["TransferFee"],
-                "uri": hex_to_str(n["URI"]),
-                "serial": n["nft_serial"],
-            }
-        )
-    return render_template("account.html", info=info, nfts=nfts)
-
+    account_url = "https://nft-devnet.xrpl.org/accounts/" + address
+    return redirect(account_url)
 
 @app.route("/mint", methods=["GET", "POST"])
 def mint():
@@ -137,3 +103,41 @@ def create_xumm_transaction(transaction):
 
     return qr, url, ws
 
+## Uncomment the following to render the account.html page with all the details v.s. re-directing it to XRPL explorer
+# @app.route("/account")
+# def account_info():
+    # client = JsonRpcClient("http://xls20-sandbox.rippletest.net:51234")
+    # address = creds["address"]
+
+    # Get account details (e.g. balance, address)
+    # try:
+    #     result = get_account_info(address, client).result
+    # except:
+    #     flash("Could not find the account - not a xls20 NFT-Devnet account?")
+    #     return redirect(url_for("hello_world"))
+
+    # info = {
+    #     "address": address,
+    #     "minted": result["account_data"].get("MintedTokens", 0),
+    #     "balance_xrp": str(drops_to_xrp(result["account_data"].get("Balance", 0))),
+    #     "balance_drops": result["account_data"].get("Balance", 0),
+    # }
+
+    # # Get details on the NFTs
+    # result = client.request(AccountNFTs(account=address, limit=150)).result
+    # print(json.dumps(result, indent=2))
+
+    # info["nft_count"] = len(result["account_nfts"])
+    # nfts = []
+
+    # for n in result["account_nfts"]:
+    #     nfts.append(
+    #         {
+    #             "issuer": n["Issuer"],
+    #             "id": n["TokenID"],
+    #             "fee": n["TransferFee"],
+    #             "uri": hex_to_str(n["URI"]),
+    #             "serial": n["nft_serial"],
+    #         }
+    #     )
+    # return render_template("account.html", info=info, nfts=nfts)
