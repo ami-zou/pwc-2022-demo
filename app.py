@@ -65,7 +65,7 @@ def mint():
         mint_result_json = mint.to_xrpl()
         print(json.dumps(mint_result_json, indent=2))
         
-        # Call the XUM API for signing the transaction
+        # Call the XUMM API for signing the transaction
         qr, url, ws = create_xumm_sdk_transaction(mint.to_xrpl())
         return render_template("mint_nft.html", qr=qr, url=url, ws=ws)
 
