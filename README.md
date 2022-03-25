@@ -6,7 +6,7 @@ This simple Flask app allows you to create and mint an NFT directly on XRPL NFT-
 
 ## Pre-requisites 
 ### XUMM App NFT-devnet node
-This app uses XUMM, a non-custodial wallet, for signing the transaction. [XLS-20d](https://github.com/XRPLF/XRPL-Standards/discussions/46), native NFT support on XRPL, is still in development and is only available on NFT-devnet at the moment (intended release on mainnet/sidechain is June 2022). To access NFT-devnet via XUMM, you'll have to add a customized node. Please scan this [QR code](https://nnwqrfc.dlvr.cloud/XLS20-QR.png) using XUMM app (scanning it directly with Camera app doesn't work) to add NFT-devnet to your XUMM. Then in `Settings > Advanced > Node` you can switch it to `xls20-sandbox.rippletest.net:51233` (NFT-devnet). It is recommended to also turn on `Develper mode`
+This app uses XUMM, a non-custodial wallet, for signing the transaction. Native NFT support on XRPL, [XLS-20d](https://github.com/XRPLF/XRPL-Standards/discussions/46), is still in development and is only available on NFT-devnet at the moment (intended release on mainnet/sidechain is June 2022). To access NFT-devnet via XUMM, you'll have to add a customized node. Please scan this [QR code](https://nnwqrfc.dlvr.cloud/XLS20-QR.png) using XUMM app (scanning it directly with Camera app doesn't work) to add NFT-devnet to your XUMM. Then in `Settings > Advanced > Node` you can switch it to `xls20-sandbox.rippletest.net:51233` (NFT-devnet). It is recommended to also turn on `Develper mode`
 
 
 ### XUMM App integration
