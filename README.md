@@ -2,7 +2,7 @@
 Python Web Conference 2022 [NFT Talk Demo](https://2022.pythonwebconf.com/presentations/stop-burning-down-rainforests-how-to-mint-nfts-using-python-and-the-xrp-ledger)
 
 ## Overview
-This simple Flask app allows you to create and mint an NFT directly on XRPL NFT-devnet, and the transaction is signed by XUMM. It also shows you account info and minted NFT details.
+This simple Flask app allows you to create and mint an NFT directly on XRPL NFT-devnet, and the transaction is signed by XUMM. It also shows you account info and minted NFT details. [Here](https://github.com/ami-zou/pwc-2022-demo/blob/main/demo.gif) is a quick demo gif.
 
 ## Pre-requisites 
 ### XUMM App NFT-devnet node
